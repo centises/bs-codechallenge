@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Path to Debug files
+./bs-codechallenge/bin/Debug/*
+./bs-codechallenge/bin/Release/*
+./bs-codechallenge/obj/Debug/*
+./bs-codechallenge/obj/Release/*
