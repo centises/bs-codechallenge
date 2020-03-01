@@ -1,0 +1,6 @@
+c:\users\jal\documents\visual studio 2015\Projects\bs-codechallenge\bs-codechallenge\bin\Debug\bs-codechallenge.exe.config
+c:\users\jal\documents\visual studio 2015\Projects\bs-codechallenge\bs-codechallenge\obj\Debug\bs-codechallenge.csprojResolveAssemblyReference.cache
+c:\users\jal\documents\visual studio 2015\Projects\bs-codechallenge\bs-codechallenge\bin\Debug\bs-codechallenge.exe
+c:\users\jal\documents\visual studio 2015\Projects\bs-codechallenge\bs-codechallenge\bin\Debug\bs-codechallenge.pdb
+c:\users\jal\documents\visual studio 2015\Projects\bs-codechallenge\bs-codechallenge\obj\Debug\bs-codechallenge.exe
+c:\users\jal\documents\visual studio 2015\Projects\bs-codechallenge\bs-codechallenge\obj\Debug\bs-codechallenge.pdb
