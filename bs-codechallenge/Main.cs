@@ -1,16 +1,16 @@
-﻿///-------------------------------------------------------------------------------------------------
-/// Project:    bs-codechallenge
-/// Datei:	    Main.cs
-///
-/// Task:	    Hilfsklasse für STC0710-Interface. (Um die Übersichtlichkeit zu steigern.) Hier
-///             werden Funktionen implementiert, die auf möglichst wenige Ressourcen des Interfaces
-///             zugreifen.
-///
-///			Date        Developer		Modifications
-///			2020/03/01	R K			    Started development. Introduced main() and csv path checking 
-///			                            function.
-///			
-///-------------------------------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------------------------------
+// Project:    bs-codechallenge
+// Datei:	    Main.cs
+//
+// Task:	    Hilfsklasse für STC0710-Interface. (Um die Übersichtlichkeit zu steigern.) Hier
+//             werden Funktionen implementiert, die auf möglichst wenige Ressourcen des Interfaces
+//             zugreifen.
+//
+//			Date        Developer		Modifications
+//			2020/03/01	R K			    Started development. Introduced main() and csv path checking 
+//			                            function.
+//			
+//-------------------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace bs_codechallenge
         /// 
         /// <remarks>   R K, 2020/03/01 </remarks>
         ///-------------------------------------------------------------------------------------------------
-        static void main(string[] args)
+        static void Program(string[] args)
         {
             String inputPath = @"./test.csv";
 
@@ -53,8 +53,8 @@ namespace bs_codechallenge
         /// <summary>   Main function. </summary>
         /// 
         /// <remarks>   R K, 2020/03/01 </remarks>
-        ///-------------------------------------------------------------------------------------------------
-        private static bool checkCsvFileOrDirectory(String path)
+        ///-----------------------------------------------  --------------------------------------------------
+        private static bool CheckCsvFileOrDirectory(String path)
         {
             if (File.Exists(path))
             {
