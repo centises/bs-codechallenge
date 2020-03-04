@@ -31,8 +31,11 @@
 *.out
 *.app
 
-# Path to Debug files
+# Path to debug files
 bs-codechallenge/bin/Debug/*
 bs-codechallenge/bin/Release/*
 bs-codechallenge/obj/Debug/*
 bs-codechallenge/obj/Release/*
+
+#Path to project information
+.vs/*
