@@ -19,7 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Data.SqlClient;
-using Microsoft.VisualBasic.FileIO;
+//using Microsoft.VisualBasic.FileIO;
 
 using System.IO;
 
@@ -49,11 +49,11 @@ namespace bs_codechallenge
                 DataSource = "localhost",
                 UserID = "SA",
                 Password = "k28nJTvof3UTL5E",
-                InitialCatalog = "mainDb"
+                InitialCatalog = "MainDB"
             };
 
             // Set default input path
-            String inputPath = @"../../test.csv";
+            String inputPath = @"../../test2.csv";
 
             if (args.Length > 1)
             {
@@ -138,29 +138,36 @@ namespace bs_codechallenge
         /// 
         /// <param name="csvPath">    Path leading to the CSV file. </param>
         ///-----------------------------------------------  --------------------------------------------------
-        private static async void ConvertCsvToSql(String csvPath)
+        private static void ConvertCsvToSql(String csvPath)
         {
             String tableName = csvPath.Split('/').ToArray().Last();
-            tableName = tableName.Split('.')[0];
+            tableName = tableName.Split('.')[0].ToUpper();
             // Console.WriteLine("Name: " + tableName + "\r\n");
 
-            using (TextFieldParser csvParser = new TextFieldParser(csvPath))
+            using (StreamReader csvFile = new StreamReader(csvPath))
             {
-                csvParser.SetDelimiters(new string[] { ";" });
-                csvParser.HasFieldsEnclosedInQuotes = true;
-                String[] columns = csvParser.ReadFields();
+                String columnLine = csvFile.ReadLine();
+                String[] columns = columnLine.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                 // Abort if data table cannot be created
-                if (!await CreateSqlTable(tableName, columns))
+                if (!CreateSqlTable(tableName, columns))
                 {
                     Console.WriteLine("ERROR: Could not create SQL data table.");
-                    return;
                 }
 
-                while (!csvParser.EndOfData)
+                while(!csvFile.EndOfStream)
                 {
-                    string[] newRecord = csvParser.ReadFields();
-                    if (!await InsertRecord(tableName, newRecord))
+                    String newLine = csvFile.ReadLine();
+                    String[] newRecord = newLine.Split(new char[] { ';' });
+                    for (int i = 0; i < newRecord.Length; i++)
+                    {
+                        if (newRecord[i] == "")
+                        {
+                            newRecord[i] = "NULL";
+                        }
+                    }
+
+                    if (!InsertRecord(tableName, columns, newRecord))
                     {
                         Console.WriteLine("ERROR: Could not insert record {0}.", newRecord[0]);
                     }
@@ -180,24 +187,27 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if table has been created successfully, returns 
         ///             <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private static async Task<bool> CreateSqlTable(String tableName, String[] columns)
+        private static bool CreateSqlTable(String tableName, String[] columns)
         {
             try
             {
                 using (SqlConnection dbConnection = new SqlConnection(sqlConString.ConnectionString))
                 {
-                    await dbConnection.OpenAsync();
+                    dbConnection.Open();
 
-                    StringBuilder sqlCmdText = new StringBuilder("CREATE TABLE " + tableName + "(");
+                    StringBuilder sqlCmdText = new StringBuilder("CREATE TABLE " + tableName + " (");
                     foreach (String column in columns)
                     {
                         sqlCmdText.Append(column.Replace("$$", " ") + ", ");
                     }
+                    sqlCmdText.Remove(sqlCmdText.Length - 2, 2);
                     sqlCmdText.Append(");");
+
+                    Console.WriteLine(sqlCmdText.ToString());
 
                     using (SqlCommand sqlCmd = new SqlCommand(sqlCmdText.ToString(), dbConnection))
                     {
-                        await sqlCmd.ExecuteNonQueryAsync();
+                        sqlCmd.ExecuteNonQuery();
                     }
                 }
             }
@@ -220,17 +230,59 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if record has been inserted successfully, returns 
         ///             <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private static async Task<bool> InsertRecord(String tableName, String[] data)
+        private static bool InsertRecord(String tableName, String[] columns, String[] data)
         {
-            try
+            //try
+            //{
+            using (SqlConnection dbConnection = new SqlConnection(sqlConString.ConnectionString))
             {
-                // using und stuff
-                ;
+                dbConnection.Open();
+
+                //Console.WriteLine("SET IDENTITY_INSERT " + tableName + " ON;");
+
+                //// Activate identity insert for table
+                //using (SqlCommand sqlCmd = new SqlCommand("SET IDENTITY_INSERT " + tableName + " ON;", dbConnection))
+                //{
+                //    sqlCmd.ExecuteNonQuery();
+                //}
+
+                StringBuilder sqlCmdText = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+                //StringBuilder sqlCmdText = new StringBuilder("INSERT INTO " + tableName + " (");
+                //foreach (String column in columns)
+                //{
+                //    sqlCmdText.Append(column.Split(new String[] { "$$" }, StringSplitOptions.None).First() + ", ");
+                //}
+
+                //sqlCmdText.Remove(sqlCmdText.Length - 2, 2);
+                //sqlCmdText.Append(") VALUES (");
+
+                for (int i = 1; i < data.Length; i++)
+                {
+                    if (columns[i].ToUpper().Contains("CHAR"))
+                    {
+                        sqlCmdText.Append(@"'" + data[i] + @"', ");
+                    }
+                    else
+                    {
+                        sqlCmdText.Append(data[i] + ", ");
+                    }
+                    //sqlCmdText.Append(data[i] + ", ");
+                }
+                sqlCmdText.Remove(sqlCmdText.Length - 2, 2);
+                sqlCmdText.Append(");");
+
+                Console.WriteLine(sqlCmdText.ToString());
+
+                using (SqlCommand sqlCmd = new SqlCommand(sqlCmdText.ToString(), dbConnection))
+                {
+                    sqlCmd.ExecuteNonQuery();
+                }
             }
-            catch
-            {
-                return false;
-            }
+            //}
+            //catch (SqlException)
+            //{
+            //    return false;
+            //}
 
             return true;
         }

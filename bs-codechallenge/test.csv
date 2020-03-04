@@ -1,29 +1,29 @@
-ID$$INT IDENTITY;Lugar$$VARCHAR(30);Días$$INT;Llegada$$DATE;Salida$$DATE;Moneda extranjera$$VARCHAR(10);Blo$$VARCHAR(20);Costos por país$$VARCHAR(10);Bla$$VARCHAR(20);Costos continuos$$VARCHAR(10);País$$VARCHAR(20);Gastos diarios$$VARCHAR(10);Ble$$VARCHAR(20);Bli$$VARCHAR(20);Presupuesto diario por persona:$$VARCHAR(10);Blu$$VARCHAR(20);Bly$$VARCHAR(20);Aeropuertos posibles$$VARCHAR(20);Blae$$VARCHAR(20);
-1;Vuelo;0;23/09/2019;23/09/2019;;1.754,00 €;2.000 €;0,00 €;113,84 €;En el aire;2.000 €;Gastos actuales:;8.145,11 €;Europa;50 €;1 €;;;
-2;Lima;2;24/09/2019;26/09/2019;603 PEN;162,97 €;203 €;162,97 €;455,38 €;Perú;68 €;;5.132,47 €;Perú;34 €;4 PEN;Lima;Madrid;Air Europa
-3;Trujillo;3;27/09/2019;30/09/2019;631 PEN;333,43 €;474 €;333,43 €;910,76 €;Perú;68 €;Gastos sumamentes:;10.246,00 €;Bolivia;34 €;8 BOB;La Paz;-;
-4;Chachapoyas;4;01/10/2019;05/10/2019;1.395 PEN;710,57 €;813 €;710,57 €;1.479,98 €;Perú;68 €;Días en total:;90;Chile;43 €;800 CLP;Santiago;Paris;AirFrance
-5;Trujillo;0;06/10/2019;06/10/2019;297 PEN;790,89 €;880 €;790,89 €;1.593,82 €;Perú;68 €;;;Argentina;29 €;60 ARS;Buenos Aires;-;
-6;Huaraz;5;07/10/2019;12/10/2019;955 PEN;1.048,86 €;1.287 €;1.048,86 €;2.276,89 €;Perú;68 €;;;Brasil;46 €;5 BRL;Rio de Janeiro;Lissabon/Madrid;TAP/Iberia
-7;Ica (Stopp Paracas);2;13/10/2019;15/10/2019;1.069 PEN;1.337,73 €;1.490 €;1.337,73 €;2.618,42 €;Perú;68 €;;;Uruguay;47 €;41 UYU;Bogota;-;
-8;Cusco;10;16/10/2019;26/10/2019;3.058 PEN;2.164,16 €;2.235 €;2.164,16 €;3.870,71 €;Perú;68 €;;;;;;Lima;Amsterdam;KLM
-9;Arequipa;2;27/10/2019;29/10/2019;1.087 PEN;2.457,99 €;2.438 €;2.457,99 €;4.212,24 €;Perú;68 €;;;;;;Rio;Amsterdam;KLM
-10;Puno;-1;30/10/2019;29/10/2019;565 PEN;2.610,70 €;2.438 €;2.610,70 €;4.212,24 €;Perú;68 €;;;;;;;;
-11;La Paz;2;30/10/2019;01/11/2019;1.752 BOB;227,58 €;203 €;2.838,28 €;4.553,78 €;Bolivia;68 €;;;;;;;;
-12;Uyuni;1;02/11/2019;03/11/2019;3.279 BOB;653,43 €;339 €;3.264,13 €;4.781,47 €;Bolivia;68 €;;;;;;;;
-13;Calama/San Pedro;4;04/11/2019;08/11/2019;575.468 CLP;719,34 €;427 €;3.983,46 €;5.350,69 €;Chile;85 €;;16 h Bus;;;;;;
-14;La Serena;1;09/11/2019;10/11/2019;197.030 CLP;965,62 €;598 €;4.229,75 €;5.578,38 €;Chile;85 €;;15h Bus, vermutlich nur tagsüber;;;;;;
-15;Pucon;3;11/11/2019;14/11/2019;442.312 CLP;1.518,51 €;940 €;4.782,64 €;6.033,76 €;Chile;85 €;;15 h/17 h Bus, evtl. mit Zug;;;;;;
-16;Puerto Montt;3;15/11/2019;18/11/2019;942.160 CLP;2.696,21 €;1.282 €;5.960,34 €;6.489,13 €;Chile;85 €;;26-37 h Bus von Osorno;;32 h mit Taxi von Osorno bis Torres del Paine;;;;
-17;Puerto Natales;3;19/11/2019;22/11/2019;344.620 CLP;3.126,99 €;1.623 €;6.391,11 €;6.944,51 €;Chile;85 €;;15h Bus;;42 h über Osorno direkt nach Valparaiso;;;;
-18;Punta Arenas;3;23/11/2019;26/11/2019;302.090 CLP;3.504,60 €;1.965 €;6.768,73 €;7.399,89 €;Chile;85 €;;18 h Bus;;;;;;
-19;Puerto Madryn;1;27/11/2019;28/11/2019;34.127 ARS;568,78 €;114 €;7.337,51 €;7.627,58 €;Argentina;57 €;;20 h Bus;;;;;;
-20;Buenos Aires;1;29/11/2019;30/11/2019;9.668 ARS;729,91 €;229 €;7.498,64 €;7.855,27 €;Argentina;57 €;;;;;;;;
-21;Colonia del Sacramento;0;01/12/2019;01/12/2019;5.150 UYU;125,61 €;94 €;7.624,25 €;7.969,11 €;Uruguay;94 €;;;;;;;;
-22;Punta del Diablo;3;02/12/2019;05/12/2019;9.647 UYU;360,90 €;472 €;7.859,54 €;8.424,49 €;Uruguay;94 €;;;;;;;;
-23;Montevideo;2;06/12/2019;08/12/2019;13.544 UYU;691,25 €;754 €;8.189,89 €;8.766,02 €;Uruguay;94 €;;;;;;;;
-24;Puerto Iguazú;3;09/12/2019;12/12/2019;28.377 ARS;472,95 €;229 €;8.662,84 €;9.221,40 €;Argentina;57 €;;;;;;;;
-25;Foz de Iguazú;-1;13/12/2019;12/12/2019;480 BRL;106,77 €;0 €;8.769,61 €;9.221,40 €;Brasil;93 €;;;;;;;;
-26;Paraty;1;13/12/2019;14/12/2019;1.402 BRL;418,36 €;186 €;9.081,20 €;9.449,09 €;Brasil;93 €;;;;;;;;
-27;Rio de Janeiro;3;15/12/2019;18/12/2019;2.749 BRL;1.029,17 €;557 €;9.692,01 €;9.904,47 €;Brasil;93 €;;;;;;;;
-28;Amsterdam;1;19/12/2019;20/12/2019;309,69 €;309,69 €;200 €;10.001,70 €;10.132,16 €;Europa;100 €;;;;;;;;
+ID$$INT IDENTITY;Lugar$$VARCHAR(30);Dias$$INT;Llegada$$VARCHAR(10);Salida$$VARCHAR(10);Extranjera$$VARCHAR(10);Blo$$VARCHAR(20);Costospais$$VARCHAR(10);Bla$$VARCHAR(20);Costoscontinuos$$VARCHAR(10);Pais$$VARCHAR(20);Gastosdiarios$$VARCHAR(10);Ble$$VARCHAR(20);Bli$$VARCHAR(20);Presupuestodiarioporpersona$$VARCHAR(10);Blu$$VARCHAR(20);Bly$$VARCHAR(20);Aeropuertosposibles$$VARCHAR(20);Blae$$VARCHAR(20)
+1;Vuelo;0;2019-23-09;2019-23-09;;1.754 EUR;2.000 EUR;0 EUR;113 EUR;En el aire;2.000 EUR;Gastos actuales;8.145 EUR;Europa;50 EUR;1 EUR;;
+2;Lima;2;2019-24-09;2019-26-09;603 PEN;162 EUR;203 EUR;162 EUR;455 EUR;Perú;68 EUR;;5.132 EUR;Perú;34 EUR;4 PEN;Lima;Madrid
+3;Trujillo;3;2019-27-09;2019-30-09;631 PEN;333 EUR;474 EUR;333 EUR;910 EUR;Perú;68 EUR;Gastos sumamentes;10.246 EUR;Bolivia;34 EUR;8 BOB;La Paz;-
+4;Chachapoyas;4;2019-01-10;2019-05-10;1.395 PEN;710 EUR;813 EUR;710 EUR;1.479 EUR;Perú;68 EUR;Días en total;90;Chile;43 EUR;800 CLP;Santiago;Paris
+5;Trujillo;0;2019-06-10;2019-06-10;297 PEN;790 EUR;880 EUR;790 EUR;1.593 EUR;Perú;68 EUR;;;Argentina;29 EUR;60 ARS;Buenos Aires;-
+6;Huaraz;5;2019-07-10;2019-12-10;955 PEN;1.048 EUR;1.287 EUR;1.048 EUR;2.276 EUR;Perú;68 EUR;;;Brasil;46 EUR;5 BRL;Rio de Janeiro;Lissabon/Madrid
+7;Ica (Stopp Paracas);2;2019-13-10;2019-15-10;1.069 PEN;1.337 EUR;1.490 EUR;1.337 EUR;2.618 EUR;Perú;68 EUR;;;Uruguay;47 EUR;41 UYU;Bogota;-
+8;Cusco;10;2019-16-10;2019-26-10;3.058 PEN;2.164 EUR;2.235 EUR;2.164 EUR;3.870 EUR;Perú;68 EUR;;;;;;Lima;Amsterdam
+9;Arequipa;2;2019-27-10;2019-29-10;1.087 PEN;2.457 EUR;2.438 EUR;2.457 EUR;4.212 EUR;Perú;68 EUR;;;;;;Rio;Amsterdam
+10;Puno;-1;2019-30-10;2019-29-10;565 PEN;2.610 EUR;2.438 EUR;2.610 EUR;4.212 EUR;Perú;68 EUR;;;;;;;
+11;La Paz;2;2019-30-10;2019-01-11;1.752 BOB;227 EUR;203 EUR;2.838 EUR;4.553 EUR;Bolivia;68 EUR;;;;;;;
+12;Uyuni;1;2019-02-11;2019-03-11;3.279 BOB;653 EUR;339 EUR;3.264 EUR;4.781 EUR;Bolivia;68 EUR;;;;;;;
+13;Calama/San Pedro;4;2019-04-11;2019-08-11;575.468 CLP;719 EUR;427 EUR;3.983 EUR;5.350 EUR;Chile;85 EUR;;16 h Bus;;;;;
+14;La Serena;1;2019-09-11;2019-10-11;197.030 CLP;965 EUR;598 EUR;4.229 EUR;5.578 EUR;Chile;85 EUR;;15h Bus, vermutlich nur tagsüber;;;;;
+15;Pucon;3;2019-11-11;2019-14-11;442.312 CLP;1.518 EUR;940 EUR;4.782 EUR;6.033 EUR;Chile;85 EUR;;15 h/17 h Bus, evtl. mit Zug;;;;;
+16;Puerto Montt;3;2019-15-11;2019-18-11;942.160 CLP;2.696 EUR;1.282 EUR;5.960 EUR;6.489 EUR;Chile;85 EUR;;26-37 h Bus von Osorno;;32 h mit Taxi von Osorno bis Torres del Paine;;;
+17;Puerto Natales;3;2019-19-11;2019-22-11;344.620 CLP;3.126 EUR;1.623 EUR;6.391 EUR;6.944 EUR;Chile;85 EUR;;15h Bus;;42 h über Osorno direkt nach Valparaiso;;;
+18;Punta Arenas;3;2019-23-11;2019-26-11;302.090 CLP;3.504 EUR;1.965 EUR;6.768 EUR;7.399 EUR;Chile;85 EUR;;18 h Bus;;;;;
+19;Puerto Madryn;1;2019-27-11;2019-28-11;34.127 ARS;568 EUR;114 EUR;7.337 EUR;7.627 EUR;Argentina;57 EUR;;20 h Bus;;;;;
+20;Buenos Aires;1;2019-29-11;2019-30-11;9.668 ARS;729 EUR;229 EUR;7.498 EUR;7.855 EUR;Argentina;57 EUR;;;;;;;
+21;Colonia del Sacramento;0;2019-01-12;2019-01-12;5.150 UYU;125 EUR;94 EUR;7.624 EUR;7.969 EUR;Uruguay;94 EUR;;;;;;;
+22;Punta del Diablo;3;2019-02-12;2019-05-12;9.647 UYU;360 EUR;472 EUR;7.859 EUR;8.424 EUR;Uruguay;94 EUR;;;;;;;
+23;Montevideo;2;2019-06-12;2019-08-12;13.544 UYU;691 EUR;754 EUR;8.189 EUR;8.766 EUR;Uruguay;94 EUR;;;;;;;
+24;Puerto Iguazú;3;2019-09-12;2019-12-12;28.377 ARS;472 EUR;229 EUR;8.662 EUR;9.221 EUR;Argentina;57 EUR;;;;;;;
+25;Foz de Iguazú;-1;2019-13-12;2019-12-12;480 BRL;106 EUR;0 EUR;8.769 EUR;9.221 EUR;Brasil;93 EUR;;;;;;;
+26;Paraty;1;2019-13-12;2019-14-12;1.402 BRL;418 EUR;186 EUR;9.081 EUR;9.449 EUR;Brasil;93 EUR;;;;;;;
+27;Rio de Janeiro;3;2019-15-12;2019-18-12;2.749 BRL;1.029 EUR;557 EUR;9.692 EUR;9.904 EUR;Brasil;93 EUR;;;;;;;
+28;Amsterdam;1;2019-19-12;2019-20-12;309 EUR;309 EUR;200 EUR;10.001 EUR;10.132 EUR;Europa;100 EUR;;;;;;;
