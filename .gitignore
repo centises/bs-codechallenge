@@ -37,5 +37,10 @@ bs-codechallenge/bin/Release/*
 bs-codechallenge/obj/Debug/*
 bs-codechallenge/obj/Release/*
 
+bs-codechallenge-tests/bin/Debug/*
+bs-codechallenge-tests/bin/Release/*
+bs-codechallenge-tests/obj/Debug/*
+bs-codechallenge-tests/obj/Release/*
+
 #Path to project information
 .vs/*

@@ -8,7 +8,7 @@
 //		2020/03/01	R K			    Started development. Introduced Main() and csv path checking 
 //			                        function.
 //      2020/03/03  R K             Finished csv path checking and started with file parsing
-//      2020/03/04  R K             Continued with file parsing and did SQL insertion
+//      2020/03/04  R K             Continued with file parsing and did SQL insertion.
 //
 //-------------------------------------------------------------------------------------------------
 
@@ -25,10 +25,10 @@ namespace bs_codechallenge
     ///
     /// <remarks>   R K, 2020/03/01. </remarks>
     ///-------------------------------------------------------------------------------------------------
-    class Program
+    public class Program
     {
         /// <summary> Contains all the information for the SQL connection. </summary>
-        private static SqlConnectionStringBuilder sqlConString;
+        public static SqlConnectionStringBuilder sqlConString;
 
         ///-------------------------------------------------------------------------------------------------
         /// <summary>   Main function for CSV to SQL migration. </summary>
@@ -54,7 +54,7 @@ namespace bs_codechallenge
             };
 
             String inputPath = @"../../test.csv";
-            if (args.Length > 1)
+            if (args.Length > 0)
             {
                 inputPath = args[0];
             }
@@ -116,10 +116,10 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file, 
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private static bool IsCsvFile(String path)
+        public static bool IsCsvFile(String path)
         {
-            String fileEnding = path.Substring(path.Length - 3, 3);
-            return fileEnding.ToLower() == "csv";
+            String fileEnding = path.Substring(path.Length - 4, 4);
+            return fileEnding.ToLower() == ".csv";
         }
 
 
