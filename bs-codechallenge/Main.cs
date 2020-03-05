@@ -9,12 +9,15 @@
 //			                        function.
 //      2020/03/03  R K             Finished csv path checking and started with file parsing
 //      2020/03/04  R K             Continued with file parsing and did SQL insertion.
+//      2020/03/05  R K             Introduced batch processing of files.
 //
 //-------------------------------------------------------------------------------------------------
 
 using System;
 using System.Linq;
 using System.Text;
+
+using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.IO;
 
@@ -25,17 +28,34 @@ namespace bs_codechallenge
     ///
     /// <remarks>   R K, 2020/03/01. </remarks>
     ///-------------------------------------------------------------------------------------------------
-    public class Program
+    public static class Program
     {
         /// <summary> Contains all the information for the SQL connection. </summary>
-        public static SqlConnectionStringBuilder sqlConString;
+        public readonly static SqlConnectionStringBuilder sqlConString = new SqlConnectionStringBuilder
+        {
+            DataSource = "localhost",
+            UserID = "SA",
+            Password = "k28nJTvof3UTL5E",
+            InitialCatalog = "MainDB"
+        };
+
+        /// <summary> Enumeration type for CheckPathForCsv return variable. </summary>
+        public enum PathType
+        {
+            Directory,
+            File,
+            Invalid
+        };
+
+        /// <summary> <see langword="true"/> if upsert flag has been activated by user. </summary>
+        private static bool upsertActive = false;
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Main function for CSV to SQL migration. </summary>
+        /// <summary>   XXX Main function for CSV to SQL migration. </summary>
         /// 
         /// <remarks>   
-        ///     Initializes the SQL connection string builder and the default CSV file. Checks then the 
-        ///     suitability of a given file or directory and starts the migration if applicable.
+        ///     Initializes the default CSV file. Checks then the suitability of a given file or directory 
+        ///     and starts the migration if applicable.
         /// 
         ///     R K, 2020/03/01
         /// </remarks>
@@ -43,32 +63,108 @@ namespace bs_codechallenge
         /// <param name="args">     Command line input for the function. Can only be a CSV file path for now. 
         ///                         </param>
         ///-------------------------------------------------------------------------------------------------
-        public static void Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            sqlConString = new SqlConnectionStringBuilder
+            if (args.Length == 0)
             {
-                DataSource = "localhost",
-                UserID = "SA",
-                Password = "k28nJTvof3UTL5E",
-                InitialCatalog = "MainDB"
-            };
-
-            String inputPath = @"../../test.csv";
-            if (args.Length > 0)
-            {
-                inputPath = args[0];
+                ProcessFlags("--help");
+                return 0;
             }
 
-            if (PathContainsCsv(inputPath))
+            int flagCount = 0;
+            while (args.Length > flagCount && args[flagCount].Contains("--"))
             {
-                ConvertCsvToSql(inputPath);
-            }
-            else
-            {
-                Console.WriteLine("ERROR: The specified path does not lead to (a) CSV file(s). Please enter a valid path!");
+                ProcessFlags(args[flagCount]);
+                flagCount++;
             }
 
-            return;
+            for (int i = args.Length - flagCount; i > 0; i--)
+            {
+                String inputPath = args[args.Length - i];
+                await ProcessInputPath(inputPath);
+            }
+
+            return 0;
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   XXX Main function for CSV to SQL migration. </summary>
+        /// 
+        /// <remarks>   
+        ///     Initializes the default CSV file. Checks then the suitability of a given file or directory 
+        ///     and starts the migration if applicable.
+        /// 
+        ///     R K, 2020/03/01
+        /// </remarks>
+        ///
+        /// <param name="flag">    Command line input for the function. Can only be a CSV file path for now. 
+        ///                             </param>
+        ///-------------------------------------------------------------------------------------------------
+        private static void ProcessFlags(String flag)
+        {
+            switch(flag)
+            {
+                case "--upsert":
+                    upsertActive = true;
+                    break;
+
+                default:
+                    Console.WriteLine("");
+                    Console.WriteLine("usage: bs-codechallenge <path>");
+                    Console.WriteLine("");
+                    Console.WriteLine("The path can either lead directly to a CSV file or to a directory with "
+                        + "one or more CSV files. Also, multiple paths can be provided.");
+
+                    //Console.WriteLine("No path provided, using default test file.");
+                    //await ProcessInputPath(@"../../test.csv");
+                    break;
+            }
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   XXX Main function for CSV to SQL migration. </summary>
+        /// 
+        /// <remarks>   
+        ///     Initializes the default CSV file. Checks then the suitability of a given file or directory 
+        ///     and starts the migration if applicable.
+        /// 
+        ///     R K, 2020/03/01
+        /// </remarks>
+        ///
+        /// <param name="inputPath">    Command line input for the function. Can only be a CSV file path for now. 
+        ///                             </param>
+        ///-------------------------------------------------------------------------------------------------
+        public static async Task<int> ProcessInputPath(string inputPath)
+        {
+            switch (CheckPathForCsv(inputPath))
+            {
+                case PathType.File:
+                    await ConvertCsvToSql(inputPath);
+                    break;
+
+                case PathType.Directory:
+                    Console.WriteLine("Batch migration active:");
+
+                    String[] filePaths = Directory.GetFiles(inputPath);
+                    foreach (String filePath in filePaths)
+                    {
+                        if (IsCsvFile(filePath))
+                        {
+                            await ConvertCsvToSql(filePath);
+                        }
+                    }
+                    Console.WriteLine("Batch migration of directory {0} done.", inputPath);
+                    break;
+
+                default:
+                    Console.WriteLine("ERROR: The specified path {0} does not lead to (a) CSV file(s). "
+                        + "Hence, the path is skipped.", inputPath);
+                    break;
+            }
+
+            return 0;
         }
 
 
@@ -83,11 +179,11 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        public static bool PathContainsCsv(String path)
+        public static PathType CheckPathForCsv(String path)
         {
             if (File.Exists(path) && IsCsvFile(path))
             {
-                return true;
+                return PathType.File;
             }
             else if (Directory.Exists(path))
             {
@@ -96,12 +192,12 @@ namespace bs_codechallenge
                 {
                     if (IsCsvFile(filePath))
                     {
-                        return true;
+                        return PathType.Directory;
                     }
                 }
             }
 
-            return false;
+            return PathType.Invalid;
         }
 
 
@@ -136,21 +232,23 @@ namespace bs_codechallenge
         /// 
         /// <param name="csvPath">    Path leading to the CSV file. </param>
         ///-----------------------------------------------  --------------------------------------------------
-        private static void ConvertCsvToSql(String csvPath)
+        private static async Task<int> ConvertCsvToSql(String csvPath)
         {
             String tableName = csvPath.Split('/').ToArray().Last();
             tableName = tableName.Split('.')[0].ToUpper();
+
+            Console.WriteLine("File {0} is migrated to new SQL table {1}.", csvPath, tableName);
 
             using (StreamReader csvFile = new StreamReader(csvPath))
             {
                 String columnLine = csvFile.ReadLine();
                 String[] columns = columnLine.Split(new char[] { ';' });
 
-                if (!CreateSqlTable(tableName, columns))
+                if (!await CreateSqlTable(tableName, columns))
                 {
                     Console.WriteLine("ERROR: Could not create SQL data table. " + 
                     "A table '{0}' might already exist.", tableName);
-                    return;
+                    return 0;
                 }
 
                 while(!csvFile.EndOfStream)
@@ -165,12 +263,14 @@ namespace bs_codechallenge
                         }
                     }
 
-                    if (!InsertRecord(tableName, columns, newRecord))
+                    if (!await InsertRecord(tableName, columns, newRecord))
                     {
                         Console.WriteLine("ERROR: Could not insert record no. {0}.", newRecord[0]);
                     }
                 }
             }
+
+            return 0;
         }
 
 
@@ -186,17 +286,19 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if table has been created successfully, returns 
         ///             <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private static bool CreateSqlTable(String tableName, String[] columns)
+        private async static Task<bool> CreateSqlTable(String tableName, String[] columns)
         {
             try
             {
                 using (SqlConnection dbConnection = new SqlConnection(sqlConString.ConnectionString))
                 {
-                    dbConnection.Open();
+                    await dbConnection.OpenAsync();
 
                     StringBuilder sqlCmdText = new StringBuilder("CREATE TABLE " + tableName + " (");
                     foreach (String column in columns)
                     {
+
+                        // PARAMETER INSERT?
                         sqlCmdText.Append(column.Replace("$$", " ") + ", ");
                     }
                     sqlCmdText.Remove(sqlCmdText.Length - 2, 2);
@@ -204,7 +306,7 @@ namespace bs_codechallenge
 
                     using (SqlCommand sqlCmd = new SqlCommand(sqlCmdText.ToString(), dbConnection))
                     {
-                        sqlCmd.ExecuteNonQuery();
+                        await sqlCmd.ExecuteNonQueryAsync();
                     }
                 }
             }
@@ -236,19 +338,20 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if record has been inserted successfully into the table
         ///             <paramref name="tableName"/>, returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private static bool InsertRecord(String tableName, String[] columns, String[] data)
+        private async static Task<bool> InsertRecord(String tableName, String[] columns, String[] data)
         {
             try
             {
                 using (SqlConnection dbConnection = new SqlConnection(sqlConString.ConnectionString))
                 {
-                    dbConnection.Open();
+                    await dbConnection.OpenAsync();
 
                     StringBuilder sqlCmdText = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
                     for (int i = 1; i < data.Length; i++)
                     {
                         if (columns[i].ToUpper().Contains("CHAR") || columns[i].ToUpper().Contains("TEXT"))
                         {
+                            // PARAMETER INSERT?
                             sqlCmdText.Append("'" + data[i] + "', ");
                         }
                         else
@@ -261,7 +364,7 @@ namespace bs_codechallenge
 
                     using (SqlCommand sqlCmd = new SqlCommand(sqlCmdText.ToString(), dbConnection))
                     {
-                        sqlCmd.ExecuteNonQuery();
+                        await sqlCmd.ExecuteNonQueryAsync();
                     }
                 }
             }

@@ -6,7 +6,7 @@
 //
 //     Date        Developer		Modifications
 //      2020/03/04  R K             Started with unit tests for IsCsvFile().
-//      2020/03/05  R K             Continued with tests for PathContainsCsv().
+//      2020/03/05  R K             Continued with tests for CheckPathForCsv().
 //
 //-------------------------------------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ namespace bs_codechallenge_tests
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void PathContainsCsv_ValidDirectoryPath_ReturnsTrue()
+        public void CheckPathForCsv_ValidDirectoryPath_ReturnsTrue()
         {
             // Arrange
             String validPath = "../../../bs-codechallenge";
@@ -125,7 +125,7 @@ namespace bs_codechallenge_tests
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void PathContainsCsv_PathWithNoCsv_ReturnsFalse()
+        public void CheckPathForCsv_PathWithNoCsv_ReturnsFalse()
         {
             // Arrange
             String validPath = ".";
@@ -152,7 +152,7 @@ namespace bs_codechallenge_tests
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void PathContainsCsv_InvalidPath_ReturnsFalse()
+        public void CheckPathForCsv_InvalidPath_ReturnsFalse()
         {
             // Arrange
             String validPath = "./blablebla";
@@ -177,7 +177,7 @@ namespace bs_codechallenge_tests
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void PathContainsCsv_ValidFilePath_ReturnsTrue()
+        public void CheckPathForCsv_ValidFilePath_ReturnsTrue()
         {
             // Arrange
             String validPath = "../../../bs-codechallenge/test.csv";
@@ -202,7 +202,7 @@ namespace bs_codechallenge_tests
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void PathContainsCsv_InvalidFilePath_ReturnsFalse()
+        public void CheckPathForCsv_InvalidFilePath_ReturnsFalse()
         {
             // Arrange
             String validPath = "../../../bs-codechallenge/testx.csv";
