@@ -5,11 +5,14 @@
 // Task:        Provides unit tests for solution.
 //
 //     Date        Developer		Modifications
-//      2020/03/04  R K             Started with unit tests.
+//      2020/03/04  R K             Started with unit tests for IsCsvFile().
+//      2020/03/05  R K             Continued with tests for PathContainsCsv().
 //
 //-------------------------------------------------------------------------------------------------
 
 using System;
+using System.IO;
+using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using bs_codechallenge;
 
@@ -80,6 +83,135 @@ namespace bs_codechallenge_tests
 
             // Assert
             Assert.AreEqual(false, actual, "Directory path incorrectly recognized as CSV file.");
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
+        ///             file or a directory with one or more CSV files. </summary>
+        /// 
+        /// <remarks>   R K, 2020/03/01 </remarks>
+        /// 
+        /// <param name="path">    Path in question. </param>
+        ///
+        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
+        ///             returns <see langword="false"/> otherwise. </returns>
+        ///-----------------------------------------------  --------------------------------------------------
+        [TestMethod]
+        public void PathContainsCsv_ValidDirectoryPath_ReturnsTrue()
+        {
+            // Arrange
+            String validPath = "../../../bs-codechallenge";
+
+            //MessageBox.Show(Directory.GetCurrentDirectory());
+
+            // Act
+            bool actual = Program.PathContainsCsv(validPath);
+
+            // Assert
+            Assert.AreEqual(true, actual, "Directory path with CSV files not recognized.");
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
+        ///             file or a directory with one or more CSV files. </summary>
+        /// 
+        /// <remarks>   R K, 2020/03/01 </remarks>
+        /// 
+        /// <param name="path">    Path in question. </param>
+        ///
+        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
+        ///             returns <see langword="false"/> otherwise. </returns>
+        ///-----------------------------------------------  --------------------------------------------------
+        [TestMethod]
+        public void PathContainsCsv_PathWithNoCsv_ReturnsFalse()
+        {
+            // Arrange
+            String validPath = ".";
+
+            //MessageBox.Show(Directory.GetCurrentDirectory());
+
+            // Act
+            bool actual = Program.PathContainsCsv(validPath);
+
+            // Assert
+            Assert.AreEqual(false, actual, "Directory path without CSV files is not rejected correctly.");
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
+        ///             file or a directory with one or more CSV files. </summary>
+        /// 
+        /// <remarks>   R K, 2020/03/01 </remarks>
+        /// 
+        /// <param name="path">    Path in question. </param>
+        ///
+        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
+        ///             returns <see langword="false"/> otherwise. </returns>
+        ///-----------------------------------------------  --------------------------------------------------
+        [TestMethod]
+        public void PathContainsCsv_InvalidPath_ReturnsFalse()
+        {
+            // Arrange
+            String validPath = "./blablebla";
+
+            // Act
+            bool actual = Program.PathContainsCsv(validPath);
+
+            // Assert
+            Assert.AreEqual(false, actual, "Invalid directory path is not rejected correctly.");
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
+        ///             file or a directory with one or more CSV files. </summary>
+        /// 
+        /// <remarks>   R K, 2020/03/01 </remarks>
+        /// 
+        /// <param name="path">    Path in question. </param>
+        ///
+        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
+        ///             returns <see langword="false"/> otherwise. </returns>
+        ///-----------------------------------------------  --------------------------------------------------
+        [TestMethod]
+        public void PathContainsCsv_ValidFilePath_ReturnsTrue()
+        {
+            // Arrange
+            String validPath = "../../../bs-codechallenge/test.csv";
+
+            // Act
+            bool actual = Program.PathContainsCsv(validPath);
+
+            // Assert
+            Assert.AreEqual(true, actual, "Valid directory path is not recognized correctly.");
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
+        ///             file or a directory with one or more CSV files. </summary>
+        /// 
+        /// <remarks>   R K, 2020/03/01 </remarks>
+        /// 
+        /// <param name="path">    Path in question. </param>
+        ///
+        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
+        ///             returns <see langword="false"/> otherwise. </returns>
+        ///-----------------------------------------------  --------------------------------------------------
+        [TestMethod]
+        public void PathContainsCsv_InvalidFilePath_ReturnsFalse()
+        {
+            // Arrange
+            String validPath = "../../../bs-codechallenge/testx.csv";
+
+            // Act
+            bool actual = Program.PathContainsCsv(validPath);
+
+            // Assert
+            Assert.AreEqual(false, actual, "Invalid directory path is not rejected correctly.");
         }
     }
 }

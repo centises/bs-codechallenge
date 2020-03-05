@@ -83,7 +83,7 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
         ///             returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private static bool PathContainsCsv(String path)
+        public static bool PathContainsCsv(String path)
         {
             if (File.Exists(path) && IsCsvFile(path))
             {
