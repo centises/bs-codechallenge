@@ -2,24 +2,23 @@
 // Project:    bs-codechallenge-tests
 // File:       MainUnitTests.cs
 //
-// Task:        Provides unit tests for solution.
+// Task:        Provides unit tests for the solution.
 //
 //     Date        Developer		Modifications
 //      2020/03/04  R K             Started with unit tests for IsCsvFile().
 //      2020/03/05  R K             Continued with tests for CheckPathForCsv().
-//
+//      2020/03/06  R K             Finished comments on tests.
 //-------------------------------------------------------------------------------------------------
 
 using System;
-using System.IO;
-using System.Windows.Forms;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using bs_codechallenge;
 
 namespace bs_codechallenge_tests
 {
     ///-------------------------------------------------------------------------------------------------
-    /// <summary>   XXX Class for main program parts. Only class so far. </summary>
+    /// <summary>   Class for unit tests. </summary>
     ///
     /// <remarks>   R K, 2020/03/04. </remarks>
     ///-------------------------------------------------------------------------------------------------
@@ -27,11 +26,10 @@ namespace bs_codechallenge_tests
     public class MainUnitTests
     {
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a file, specified by <paramref name="path"/> is a CSV file. 
-        ///             </summary>
+        /// <summary>   Tests IsCsvFile() on a file path with a correct CSV file ending. </summary>
         /// 
         /// <remarks>   R K, 2020/03/04 </remarks>
-        ///-----------------------------------------------  --------------------------------------------------
+        ///-------------------------------------------------------------------------------------------------
         [TestMethod]
         public void IsCsvFile_ValidPath_ReturnsTrue()
         {
@@ -47,8 +45,7 @@ namespace bs_codechallenge_tests
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a file, specified by <paramref name="path"/> is a CSV file. 
-        ///             </summary>
+        /// <summary>   Tests IsCsvFile() on an invalid file path. </summary>
         /// 
         /// <remarks>   R K, 2020/03/04 </remarks>
         ///-----------------------------------------------  --------------------------------------------------
@@ -67,8 +64,7 @@ namespace bs_codechallenge_tests
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a file, specified by <paramref name="path"/> is a CSV file. 
-        ///             </summary>
+        /// <summary>   Tests IsCsvFile() on an (invalid) directory path. </summary>
         /// 
         /// <remarks>   R K, 2020/03/04 </remarks>
         ///-----------------------------------------------  --------------------------------------------------
@@ -87,131 +83,123 @@ namespace bs_codechallenge_tests
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
-        ///             file or a directory with one or more CSV files. </summary>
+        /// <summary>   Tests CheckPathForCsv() on a valid directory path. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/01 </remarks>
-        /// 
-        /// <param name="path">    Path in question. </param>
-        ///
-        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
-        ///             returns <see langword="false"/> otherwise. </returns>
+        /// <remarks>   R K, 2020/03/05 </remarks>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void CheckPathForCsv_ValidDirectoryPath_ReturnsTrue()
+        public void CheckPathForCsv_ValidDirectoryPath_ReturnsDirectory()
         {
             // Arrange
             String validPath = "../../../bs-codechallenge";
 
-            //MessageBox.Show(Directory.GetCurrentDirectory());
-
             // Act
-            bool actual = Program.PathContainsCsv(validPath);
+            Program.PathType actual = Program.CheckPathForCsv(validPath);
 
             // Assert
-            Assert.AreEqual(true, actual, "Directory path with CSV files not recognized.");
+            Assert.AreEqual(Program.PathType.Directory, actual, 
+                "Directory path with CSV files not recognized.");
         }
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
-        ///             file or a directory with one or more CSV files. </summary>
+        /// <summary>   Tests CheckPathForCsv() on a valid directory path without CSV files. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/01 </remarks>
-        /// 
-        /// <param name="path">    Path in question. </param>
-        ///
-        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
-        ///             returns <see langword="false"/> otherwise. </returns>
+        /// <remarks>   R K, 2020/03/05 </remarks>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void CheckPathForCsv_PathWithNoCsv_ReturnsFalse()
+        public void CheckPathForCsv_PathWithNoCsv_ReturnsInvalid()
         {
             // Arrange
             String validPath = ".";
 
-            //MessageBox.Show(Directory.GetCurrentDirectory());
-
             // Act
-            bool actual = Program.PathContainsCsv(validPath);
+            Program.PathType actual = Program.CheckPathForCsv(validPath);
 
             // Assert
-            Assert.AreEqual(false, actual, "Directory path without CSV files is not rejected correctly.");
+            Assert.AreEqual(Program.PathType.Invalid, actual, 
+                "Directory path without CSV files is not rejected correctly.");
         }
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
-        ///             file or a directory with one or more CSV files. </summary>
+        /// <summary>   Tests CheckPathForCsv() on an invalid path. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/01 </remarks>
-        /// 
-        /// <param name="path">    Path in question. </param>
-        ///
-        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
-        ///             returns <see langword="false"/> otherwise. </returns>
+        /// <remarks>   R K, 2020/03/05 </remarks>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void CheckPathForCsv_InvalidPath_ReturnsFalse()
+        public void CheckPathForCsv_InvalidPath_ReturnsInvalid()
         {
             // Arrange
             String validPath = "./blablebla";
 
             // Act
-            bool actual = Program.PathContainsCsv(validPath);
+            Program.PathType actual = Program.CheckPathForCsv(validPath);
 
             // Assert
-            Assert.AreEqual(false, actual, "Invalid directory path is not rejected correctly.");
+            Assert.AreEqual(Program.PathType.Invalid, actual, 
+                "Invalid directory path is not rejected correctly.");
         }
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
-        ///             file or a directory with one or more CSV files. </summary>
+        /// <summary>   Tests CheckPathForCsv() on a valid file path. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/01 </remarks>
-        /// 
-        /// <param name="path">    Path in question. </param>
-        ///
-        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
-        ///             returns <see langword="false"/> otherwise. </returns>
+        /// <remarks>   R K, 2020/03/05 </remarks>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void CheckPathForCsv_ValidFilePath_ReturnsTrue()
+        public void CheckPathForCsv_ValidFilePath_ReturnsFile()
         {
             // Arrange
             String validPath = "../../../bs-codechallenge/test.csv";
 
             // Act
-            bool actual = Program.PathContainsCsv(validPath);
+            Program.PathType actual = Program.CheckPathForCsv(validPath);
 
             // Assert
-            Assert.AreEqual(true, actual, "Valid directory path is not recognized correctly.");
+            Assert.AreEqual(Program.PathType.File, actual, 
+                "Valid directory path is not recognized correctly.");
         }
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Function for checking if a specified <paramref name="path"/> leads to either a CSV 
-        ///             file or a directory with one or more CSV files. </summary>
+        /// <summary>   Tests CheckPathForCsv() on an invalid file path. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/01 </remarks>
-        /// 
-        /// <param name="path">    Path in question. </param>
-        ///
-        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
-        ///             returns <see langword="false"/> otherwise. </returns>
+        /// <remarks>   R K, 2020/03/05 </remarks>
         ///-----------------------------------------------  --------------------------------------------------
         [TestMethod]
-        public void CheckPathForCsv_InvalidFilePath_ReturnsFalse()
+        public void CheckPathForCsv_InvalidFilePath_ReturnsInvalid()
         {
             // Arrange
             String validPath = "../../../bs-codechallenge/testx.csv";
 
             // Act
-            bool actual = Program.PathContainsCsv(validPath);
+            Program.PathType actual = Program.CheckPathForCsv(validPath);
 
             // Assert
-            Assert.AreEqual(false, actual, "Invalid directory path is not rejected correctly.");
+            Assert.AreEqual(Program.PathType.Invalid, actual, 
+                "Invalid directory path is not rejected correctly.");
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Tests CreateSqlTable() for its reaction without database access. </summary>
+        /// 
+        /// <remarks>   R K, 2020/03/05 </remarks>
+        ///-----------------------------------------------  --------------------------------------------------
+        [TestMethod]
+        public async Task CreateSqlTable_NoDataBase_ReturnsNull()
+        {
+            // Arrange
+            String tableName = "Test1";
+            String[] columns = new String[] { "ID", "Name", "Birthday", "Town" };
+
+            // Act
+            String[] actual = await Program.CreateSqlTable(tableName, columns);
+
+            // Assert
+            Assert.AreEqual(null, actual,
+                "CreateSqlTable() returns column names without database being there.");
         }
     }
 }
