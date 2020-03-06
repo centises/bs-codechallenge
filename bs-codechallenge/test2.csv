@@ -1,6 +1,6 @@
 ID$$INT IDENTITY;Name$$NVARCHAR(30);Age$$INT;Birthyear$$INT;Town$$NVARCHAR(30)
 1;Hans;40;1994;Aschersleben
-2;Gustav;98;1930;Newcastle
-3;Inge;32;495;Ingebourg
-4;Meier;54;2991;Meitown
+17;Gustav;98;1930;Newcastle
+4;Inge;32;495;Ingebourg
+2;Meier;54;2991;Meitown
 5;Schulte;10;1128;Cuxhaven

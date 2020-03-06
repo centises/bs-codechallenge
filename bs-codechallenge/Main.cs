@@ -9,7 +9,8 @@
 //			                        function.
 //      2020/03/03  R K             Finished csv path checking and started with file parsing
 //      2020/03/04  R K             Continued with file parsing and did SQL insertion.
-//      2020/03/05  R K             Introduced batch processing of files.
+//      2020/03/05  R K             Introduced batch processing of files, started UPSERT option.
+//      2020/03/06  R K             Finished UPSERT option, checked comments.
 //
 //-------------------------------------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ using System.IO;
 namespace bs_codechallenge
 {
     ///-------------------------------------------------------------------------------------------------
-    /// <summary>   Class for main program parts. Only class so far. </summary>
+    /// <summary>   Class for main program parts. Only class so far (apart from testing). </summary>
     ///
     /// <remarks>   R K, 2020/03/01. </remarks>
     ///-------------------------------------------------------------------------------------------------
@@ -243,12 +244,23 @@ namespace bs_codechallenge
             {
                 String columnLine = csvFile.ReadLine();
                 String[] columns = columnLine.Split(new char[] { ';' });
+                String[] columnNames = await CreateSqlTable(tableName, columns);
 
-                if (!await CreateSqlTable(tableName, columns))
+                if (columnNames == null)
                 {
-                    Console.WriteLine("ERROR: Could not create SQL data table. " + 
-                    "A table '{0}' might already exist.", tableName);
-                    return 0;
+                    if (upsertActive)
+                    {
+                        Console.WriteLine("ERROR: Could not create SQL data table. "
+                            + "An unknown error occured.");
+                        return 0;
+                    }
+                    else
+                    {
+                        Console.WriteLine("ERROR: Could not create SQL data table. "
+                            + "A table '{0}' might already exist. " 
+                            + "Potentially use UPSERT flag.", tableName);
+                        return 0;
+                    }
                 }
 
                 while(!csvFile.EndOfStream)
@@ -263,9 +275,20 @@ namespace bs_codechallenge
                         }
                     }
 
-                    if (!await InsertRecord(tableName, columns, newRecord))
+                    // TODO: Check that records are not additionally inserted with or without UPSERT flag!
+                    if (upsertActive)
                     {
-                        Console.WriteLine("ERROR: Could not insert record no. {0}.", newRecord[0]);
+                        if (!await UpsertRecord(tableName, columnNames, newRecord))
+                        {
+                            Console.WriteLine("ERROR: Could not upsert record no. {0}.", newRecord[0]);
+                        }
+                    }
+                    else
+                    {
+                        if (!await InsertRecord(tableName, columnNames, newRecord))
+                        {
+                            Console.WriteLine("ERROR: Could not insert record no. {0}.", newRecord[0]);
+                        }
                     }
                 }
             }
@@ -275,7 +298,7 @@ namespace bs_codechallenge
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Creates an SQL data table based on the column descriptions given in 
+        /// <summary>   XXX Creates an SQL data table based on the column descriptions given in 
         ///             <paramref name="columns"/>. </summary>
         /// 
         /// <remarks>   R K, 2020/03/03 </remarks>
@@ -286,8 +309,10 @@ namespace bs_codechallenge
         /// <returns>   Returns <see langword="true"/> if table has been created successfully, returns 
         ///             <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private async static Task<bool> CreateSqlTable(String tableName, String[] columns)
+        private async static Task<String[]> CreateSqlTable(String tableName, String[] columns)
         {
+            String[] columnNames = new String[columns.Length];
+
             try
             {
                 using (SqlConnection dbConnection = new SqlConnection(sqlConString.ConnectionString))
@@ -295,17 +320,84 @@ namespace bs_codechallenge
                     await dbConnection.OpenAsync();
 
                     StringBuilder sqlCmdText = new StringBuilder("CREATE TABLE " + tableName + " (");
-                    foreach (String column in columns)
+                    for (int i = 0; i < columns.Length; i++)
                     {
-
                         // PARAMETER INSERT?
-                        sqlCmdText.Append(column.Replace("$$", " ") + ", ");
+                        sqlCmdText.Append(columns[i].Replace("$$", " ") + ", ");
+
+                        columnNames[i] = columns[i].Split(new String[] { "$$" }, StringSplitOptions.None).First();
                     }
                     sqlCmdText.Remove(sqlCmdText.Length - 2, 2);
                     sqlCmdText.Append(");");
 
                     using (SqlCommand sqlCmd = new SqlCommand(sqlCmdText.ToString(), dbConnection))
                     {
+                        await sqlCmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (upsertActive && ex.Number == 2714)
+                {
+                    Console.WriteLine("Table {0} has been found in database.", tableName);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return columnNames;
+        }
+
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Inserts the record <paramref name="data"/> into the SQL table 
+        ///             <paramref name="tableName"/>. </summary>
+        /// 
+        /// <remarks>   R K, 2020/03/03 </remarks>
+        /// 
+        /// <param name="tableName">    Name for the new data table. </param>
+        /// <param name="columnNames">      Array with column names and data types, separated by "$$". </param>
+        /// <param name="data">         Array with record data. </param>
+        /// 
+        /// <returns>   Returns <see langword="true"/> if record has been inserted successfully into the table
+        ///             <paramref name="tableName"/>, returns <see langword="false"/> otherwise. </returns>
+        ///-----------------------------------------------  --------------------------------------------------
+        private async static Task<bool> InsertRecord(String tableName, String[] columnNames, String[] data)
+        {
+            try
+            {
+                using (SqlConnection dbConnection = new SqlConnection(sqlConString.ConnectionString))
+                {
+                    await dbConnection.OpenAsync();
+
+                    StringBuilder sqlCmdFields = new StringBuilder("SET IDENTITY_INSERT " 
+                        + tableName + " ON; INSERT INTO " + tableName + " (");
+                    StringBuilder sqlCmdValues = new StringBuilder(") VALUES (");
+
+                    for (int i = 0; i < columnNames.Length; i++)
+                    {
+                        sqlCmdFields.Append(columnNames[i] + ", ");
+                        sqlCmdValues.Append("@" + columnNames[i] + ", ");
+                    }
+
+                    sqlCmdFields.Remove(sqlCmdFields.Length - 2, 2);
+                    sqlCmdValues.Remove(sqlCmdValues.Length - 2, 2);
+                    sqlCmdValues.Append(");");
+
+                    sqlCmdFields.Append(sqlCmdValues.ToString());
+
+                    //Console.WriteLine(sqlCmdFields.ToString());
+
+                    using (SqlCommand sqlCmd = new SqlCommand(sqlCmdFields.ToString(), dbConnection))
+                    {
+                        for (int i = 0; i < columnNames.Length; i++)
+                        {
+                            sqlCmd.Parameters.AddWithValue("@" + columnNames[i], data[i]);
+                        }
+
                         await sqlCmd.ExecuteNonQueryAsync();
                     }
                 }
@@ -320,25 +412,19 @@ namespace bs_codechallenge
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Inserts the record <paramref name="data"/> into the SQL table 
+        /// <summary>   XXX Inserts the record <paramref name="data"/> into the SQL table 
         ///             <paramref name="tableName"/>. </summary>
         /// 
-        /// <remarks>   
-        ///     Data for CHAR/VARCHAR or TEXT columns is surrounded by inverted commas.
-        ///     
-        ///     R K, 2020/03/03
-        /// </remarks>
-        /// 
-        /// <param name="data">    Path leading to the CSV file. </param>
+        /// <remarks>   R K, 2020/03/06 </remarks>
         /// 
         /// <param name="tableName">    Name for the new data table. </param>
-        /// <param name="columns">      Array with column names and data types, separated by "$$". </param>
+        /// <param name="columnNames">      Array with column names and data types, separated by "$$". </param>
         /// <param name="data">         Array with record data. </param>
         /// 
         /// <returns>   Returns <see langword="true"/> if record has been inserted successfully into the table
         ///             <paramref name="tableName"/>, returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
-        private async static Task<bool> InsertRecord(String tableName, String[] columns, String[] data)
+        private async static Task<bool> UpsertRecord(String tableName, String[] columnNames, String[] data)
         {
             try
             {
@@ -346,24 +432,51 @@ namespace bs_codechallenge
                 {
                     await dbConnection.OpenAsync();
 
-                    StringBuilder sqlCmdText = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
-                    for (int i = 1; i < data.Length; i++)
-                    {
-                        if (columns[i].ToUpper().Contains("CHAR") || columns[i].ToUpper().Contains("TEXT"))
-                        {
-                            // PARAMETER INSERT?
-                            sqlCmdText.Append("'" + data[i] + "', ");
-                        }
-                        else
-                        {
-                            sqlCmdText.Append(data[i] + ", ");
-                        }
-                    }
-                    sqlCmdText.Remove(sqlCmdText.Length - 2, 2);
-                    sqlCmdText.Append(");");
+                    IF NOT EXISTS(SELECT * FROM dbo.Employee WHERE ID = @SomeID)
 
-                    using (SqlCommand sqlCmd = new SqlCommand(sqlCmdText.ToString(), dbConnection))
+                        INSERT INTO dbo.Employee(Col1, ..., ColN)
+                        VALUES(Val1, .., ValN)
+
+                    ELSE
+
+                        UPDATE dbo.Employee
+                        SET Col1 = Val1, Col2 = Val2, ...., ColN = ValN
+                        WHERE ID = @SomeID
+
+                    StringBuilder sqlCmdInsertFields = new StringBuilder(
+                            "IF NOT EXISTS (SELECT * FROM " + tableName + " WHERE " + columnNames[0] + "=@" + columnNames[0] + ") "
+                            + "INSERT INTO " + tableName + " (");
+                    StringBuilder sqlCmdInsertValues = new StringBuilder(") VALUES (");
+
+                    StringBuilder sqlCmdUpdate = new StringBuilder(") ELSE "
+                        + "UPDATE " + tableName
+                        + " SET ");
+
+                    for (int i = 0; i < columnNames.Length; i++)
                     {
+                        sqlCmdInsertFields.Append(columnNames[i] + ", ");
+                        sqlCmdInsertValues.Append("@" + columnNames[i] + ", ");
+
+                        sqlCmdUpdate.Append(columnNames[i] + "=@" + columnNames[i] + ", ");
+                    }
+
+                    sqlCmdInsertFields.Remove(sqlCmdInsertFields.Length - 2, 2);
+                    sqlCmdInsertValues.Remove(sqlCmdInsertValues.Length - 2, 2);
+                    sqlCmdUpdate.Remove(sqlCmdInsertValues.Length - 2, 2);
+                    sqlCmdUpdate.Append("WHERE " + columnNames[0] + "=@" + columnNames[0] + ";");
+
+                    sqlCmdInsertFields.Append(sqlCmdInsertValues.ToString());
+                    sqlCmdInsertFields.Append(sqlCmdUpdate.ToString());
+
+                    //Console.WriteLine(sqlCmdFields.ToString());
+
+                    using (SqlCommand sqlCmd = new SqlCommand(sqlCmdInsertFields.ToString(), dbConnection))
+                    {
+                        for (int i = 0; i < columnNames.Length; i++)
+                        {
+                            sqlCmd.Parameters.AddWithValue("@" + columnNames[i], data[i]);
+                        }
+
                         await sqlCmd.ExecuteNonQueryAsync();
                     }
                 }
