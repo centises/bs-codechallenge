@@ -25,7 +25,7 @@ using System.IO;
 namespace bs_codechallenge
 {
     ///-------------------------------------------------------------------------------------------------
-    /// <summary>   Class for main program parts. Only class so far (apart from testing). </summary>
+    /// <summary>   Class for main program parts. Only class (apart from testing). </summary>
     ///
     /// <remarks>   R K, 2020/03/01. </remarks>
     ///-------------------------------------------------------------------------------------------------
@@ -51,18 +51,18 @@ namespace bs_codechallenge
         /// <summary> <see langword="true"/> if upsert flag has been activated by user. </summary>
         private static bool upsertActive = false;
 
+
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Main function for CSV to SQL migration. </summary>
+        /// <summary>   Main function for CSV to SQL migration. Processes arguments and paths passed by 
+        ///             user. </summary>
         /// 
-        /// <remarks>   
-        ///     Initializes the default CSV file. Checks then the suitability of a given file or directory 
-        ///     and starts the migration if applicable.
-        /// 
-        ///     R K, 2020/03/01
-        /// </remarks>
+        /// <remarks>   Flags have to be specified first. CSV path(s) come second.
+        ///             R K, 2020/03/01. </remarks>
         ///
-        /// <param name="args">     Command line input for the function. Can only be a CSV file path for now. 
-        ///                         </param>
+        /// <param name="args">     Command line input for the function. Can contain nothing, HELP or UPSERT 
+        ///                         flag, and paths to CSV files or directories. </param>
+        /// 
+        /// <returns>   Returns 0. </returns>
         ///-------------------------------------------------------------------------------------------------
         public static async Task<int> Main(string[] args)
         {
@@ -90,17 +90,16 @@ namespace bs_codechallenge
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Main function for CSV to SQL migration. </summary>
+        /// <summary>   Method for processing flag arguments to main function. </summary>
         /// 
         /// <remarks>   
-        ///     Initializes the default CSV file. Checks then the suitability of a given file or directory 
-        ///     and starts the migration if applicable.
+        ///     Flag options are either "--upsert" or anything else (with two leading dashes), which is 
+        ///     treated like a "--help" flag. This in turn produces commentarial output.
         /// 
-        ///     R K, 2020/03/01
+        ///     R K, 2020/03/05
         /// </remarks>
         ///
-        /// <param name="flag">    Command line input for the function. Can only be a CSV file path for now. 
-        ///                             </param>
+        /// <param name="flag">    Flag argument from command line. </param>
         ///-------------------------------------------------------------------------------------------------
         private static void ProcessFlags(String flag)
         {
@@ -111,31 +110,32 @@ namespace bs_codechallenge
                     break;
 
                 default:
-                    Console.WriteLine("");
-                    Console.WriteLine("usage: bs-codechallenge <path>");
-                    Console.WriteLine("");
-                    Console.WriteLine("The path can either lead directly to a CSV file or to a directory with "
-                        + "one or more CSV files. Also, multiple paths can be provided.");
-
-                    //Console.WriteLine("No path provided, using default test file.");
-                    //await ProcessInputPath(@"../../test.csv");
-                    break;
+                        Console.WriteLine("");
+                        Console.WriteLine("usage: bs-codechallenge <path>");
+                        Console.WriteLine("");
+                        Console.WriteLine("The path can either lead directly to a CSV file or to a directory with "
+                            + "one or more CSV files. Also, multiple paths can be provided.");
+                        break;
             }
         }
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Main function for CSV to SQL migration. </summary>
+        /// <summary>   Method for processing a path passed by the user which is supposed to lead to one or 
+        ///             more CSV files. </summary>
         /// 
         /// <remarks>   
-        ///     Initializes the default CSV file. Checks then the suitability of a given file or directory 
-        ///     and starts the migration if applicable.
+        ///     If a given path is a valid file path, it is directly forwarded to the CSV-SQL converter. If
+        ///     it is a valid directory path, all CSV files in this directory (none from the subdirectories)
+        ///     are forwarded to the CSV-SQL converter. In any other case, only an explainatory output is
+        ///     produced.
         /// 
-        ///     R K, 2020/03/01
+        ///     R K, 2020/03/05
         /// </remarks>
         ///
-        /// <param name="inputPath">    Command line input for the function. Can only be a CSV file path for now. 
-        ///                             </param>
+        /// <param name="inputPath">    Given path potentially leading to CSV file(s). </param>
+        /// 
+        /// <returns>   Returns 0. </returns>
         ///-------------------------------------------------------------------------------------------------
         public static async Task<int> ProcessInputPath(string inputPath)
         {
@@ -177,8 +177,8 @@ namespace bs_codechallenge
         /// 
         /// <param name="path">    Path in question. </param>
         ///
-        /// <returns>   Returns <see langword="true"/> if <paramref name="path"/> leads to CSV file(s), 
-        ///             returns <see langword="false"/> otherwise. </returns>
+        /// <returns>   Returns a PathType variable, specifying if the paths leads to a valid file or 
+        ///             directory, or if it is invalid. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         public static PathType CheckPathForCsv(String path)
         {
@@ -221,18 +221,21 @@ namespace bs_codechallenge
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Converts a given CSV file into an SQL data table. </summary>
+        /// <summary>   Inserts data from CSV file into an SQL data table. </summary>
         /// 
         /// <remarks>   
         ///     Extracts the table name from the path, creates the data table on the SQL server if possible
         ///     and then writes the records in the data table. Empty parts of the records are substituted
-        ///     with NULLs. If the data table could not be created, the method aborts.
+        ///     with NULLs. Depending on whether an UPSERT flag has been set, the data is either inserted or
+        ///     upserted.
         /// 
         ///     R K, 2020/03/03 
         /// </remarks>
         /// 
         /// <param name="csvPath">    Path leading to the CSV file. </param>
-        ///-----------------------------------------------  --------------------------------------------------
+        /// 
+        /// <returns>   Returns 0. </returns>
+        ///-------------------------------------------------------------------------------------------------
         private static async Task<int> ConvertCsvToSql(String csvPath)
         {
             String tableName = csvPath.Split('/').ToArray().Last();
@@ -275,7 +278,6 @@ namespace bs_codechallenge
                         }
                     }
 
-                    // TODO: Check that records are not additionally inserted with or without UPSERT flag!
                     if (upsertActive)
                     {
                         if (!await UpsertRecord(tableName, columnNames, newRecord))
@@ -298,16 +300,22 @@ namespace bs_codechallenge
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Creates an SQL data table based on the column descriptions given in 
+        /// <summary>   Creates an SQL data table based on the column descriptions given in 
         ///             <paramref name="columns"/>. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/03 </remarks>
+        /// <remarks>   
+        ///     If in INSERTION mode, the method returns NULL if the new table could not be created (might
+        ///     already exist). If in UPSERTION mode, the method returns NULL if something went wrong, but 
+        ///     not, if the SQLException only indicated, that the table already exists.
+        ///     
+        ///     R K, 2020/03/03
+        /// </remarks>
         /// 
         /// <param name="tableName">    Name for the new data table. </param>
         /// <param name="columns">      Array with column names and data types, separated by "$$". </param>
         /// 
-        /// <returns>   Returns <see langword="true"/> if table has been created successfully, returns 
-        ///             <see langword="false"/> otherwise. </returns>
+        /// <returns>   Returns string array with column names after successful execution. If something went
+        ///             wrong, NULL is returned. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         private async static Task<String[]> CreateSqlTable(String tableName, String[] columns)
         {
@@ -341,6 +349,7 @@ namespace bs_codechallenge
                 if (upsertActive && ex.Number == 2714)
                 {
                     Console.WriteLine("Table {0} has been found in database.", tableName);
+                    return columnNames;
                 }
                 else
                 {
@@ -356,10 +365,16 @@ namespace bs_codechallenge
         /// <summary>   Inserts the record <paramref name="data"/> into the SQL table 
         ///             <paramref name="tableName"/>. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/03 </remarks>
+        /// <remarks>   
+        ///     Activates the IDENTITY_INSERT option for the data table in order to convert all data 
+        ///     (including the ID values). The SQL command is constructed using the two StringBuilder
+        ///     sqlCmdFields and sqlCmdValues.
+        ///     
+        ///     R K, 2020/03/03
+        /// </remarks>
         /// 
         /// <param name="tableName">    Name for the new data table. </param>
-        /// <param name="columnNames">      Array with column names and data types, separated by "$$". </param>
+        /// <param name="columnNames">  Array with column names. </param>
         /// <param name="data">         Array with record data. </param>
         /// 
         /// <returns>   Returns <see langword="true"/> if record has been inserted successfully into the table
@@ -412,16 +427,23 @@ namespace bs_codechallenge
 
 
         ///-------------------------------------------------------------------------------------------------
-        /// <summary>   XXX Inserts the record <paramref name="data"/> into the SQL table 
+        /// <summary>   Upserts the record <paramref name="data"/> into the SQL table 
         ///             <paramref name="tableName"/>. </summary>
         /// 
-        /// <remarks>   R K, 2020/03/06 </remarks>
+        /// <remarks>   
+        ///     Activates the IDENTITY_INSERT option for the data table in order to convert all data 
+        ///     (including the ID values) when inserting the data. When updating the data, the ID column is 
+        ///     left out as this cannot be updated. The SQL command is constructed using the three 
+        ///     StringBuilder sqlCmdInsertFields, sqlCmdInsertValues and sqlCmdUpdate.
+        ///     
+        ///     R K, 2020/03/06
+        /// </remarks>
         /// 
         /// <param name="tableName">    Name for the new data table. </param>
-        /// <param name="columnNames">      Array with column names and data types, separated by "$$". </param>
+        /// <param name="columnNames">  Array with column names. </param>
         /// <param name="data">         Array with record data. </param>
         /// 
-        /// <returns>   Returns <see langword="true"/> if record has been inserted successfully into the table
+        /// <returns>   Returns <see langword="true"/> if record has been upserted successfully into the table
         ///             <paramref name="tableName"/>, returns <see langword="false"/> otherwise. </returns>
         ///-----------------------------------------------  --------------------------------------------------
         private async static Task<bool> UpsertRecord(String tableName, String[] columnNames, String[] data)
@@ -432,20 +454,10 @@ namespace bs_codechallenge
                 {
                     await dbConnection.OpenAsync();
 
-                    IF NOT EXISTS(SELECT * FROM dbo.Employee WHERE ID = @SomeID)
-
-                        INSERT INTO dbo.Employee(Col1, ..., ColN)
-                        VALUES(Val1, .., ValN)
-
-                    ELSE
-
-                        UPDATE dbo.Employee
-                        SET Col1 = Val1, Col2 = Val2, ...., ColN = ValN
-                        WHERE ID = @SomeID
-
-                    StringBuilder sqlCmdInsertFields = new StringBuilder(
-                            "IF NOT EXISTS (SELECT * FROM " + tableName + " WHERE " + columnNames[0] + "=@" + columnNames[0] + ") "
-                            + "INSERT INTO " + tableName + " (");
+                    StringBuilder sqlCmdInsertFields = new StringBuilder("SET IDENTITY_INSERT "
+                        + tableName + " ON; "
+                        + "IF NOT EXISTS (SELECT * FROM " + tableName + " WHERE " + columnNames[0] + "=@" + columnNames[0] + ") "
+                        + "INSERT INTO " + tableName + " (");
                     StringBuilder sqlCmdInsertValues = new StringBuilder(") VALUES (");
 
                     StringBuilder sqlCmdUpdate = new StringBuilder(") ELSE "
@@ -457,18 +469,19 @@ namespace bs_codechallenge
                         sqlCmdInsertFields.Append(columnNames[i] + ", ");
                         sqlCmdInsertValues.Append("@" + columnNames[i] + ", ");
 
-                        sqlCmdUpdate.Append(columnNames[i] + "=@" + columnNames[i] + ", ");
+                        if (i > 0)
+                        {
+                            sqlCmdUpdate.Append(columnNames[i] + "=@" + columnNames[i] + ", ");
+                        }
                     }
 
                     sqlCmdInsertFields.Remove(sqlCmdInsertFields.Length - 2, 2);
                     sqlCmdInsertValues.Remove(sqlCmdInsertValues.Length - 2, 2);
-                    sqlCmdUpdate.Remove(sqlCmdInsertValues.Length - 2, 2);
-                    sqlCmdUpdate.Append("WHERE " + columnNames[0] + "=@" + columnNames[0] + ";");
+                    sqlCmdUpdate.Remove(sqlCmdUpdate.Length - 2, 2);
+                    sqlCmdUpdate.Append(" WHERE " + columnNames[0] + "=@" + columnNames[0] + ";");
 
                     sqlCmdInsertFields.Append(sqlCmdInsertValues.ToString());
                     sqlCmdInsertFields.Append(sqlCmdUpdate.ToString());
-
-                    //Console.WriteLine(sqlCmdFields.ToString());
 
                     using (SqlCommand sqlCmd = new SqlCommand(sqlCmdInsertFields.ToString(), dbConnection))
                     {
